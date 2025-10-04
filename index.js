@@ -48,8 +48,9 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRouter);
 app.use("/api/reviews" , reviewRouter)
 
-app.listen(3001, () => {
-  console.log("Server is running on port 3001");
+// Use PORT environment variable for Render deployment
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-
-
