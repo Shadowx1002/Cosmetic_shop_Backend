@@ -8,7 +8,10 @@ import {
   sendOtp,
   resetPassword,
   getUsers,
+  getUserByEmail,
+  updateProfile,
 } from "../controllers/userController.js";
+
 
 const userRouter = express.Router();
 
@@ -20,6 +23,10 @@ userRouter.post("/login/google" , LoginWithGoogle)
 userRouter.post("/send-otp" , sendOtp)
 userRouter.post("/reset-password" , resetPassword)
 userRouter.get("/" , getUsers)
+
+userRouter.get("/getByEmail/:email", getUserByEmail);
+userRouter.put("/updateProfile/:email", updateProfile);
+
 
 
 export default userRouter;

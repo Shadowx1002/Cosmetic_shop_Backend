@@ -6,6 +6,8 @@ import axios from "axios";
 import nodemailer from "nodemailer";
 dotenv.config();
 import OTP from "../models/otp.js";
+import fs from "fs";
+import path from "path";
 
 export function createUser(req, res) {
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
@@ -257,3 +259,56 @@ export async function resetPassword(req, res) {
     });
   }
 }
+
+export async function getUserByEmail(req, res) {
+  try {
+    const email = req.params.email;
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user", error });
+  }
+}
+
+
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { firstname, lastname, phone, image } = req.body;
+    const email = req.params.email;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Update fields
+    if (firstname) user.firstname = firstname;
+    if (lastname) user.lastname = lastname;
+    if (phone) user.phone = phone;
+
+    // Handle base64 image
+    if (image && image.startsWith("data:image")) {
+      // Extract base64 data
+      const base64Data = image.split(";base64,").pop();
+      const ext = image.substring("data:image/".length, image.indexOf(";base64"));
+      const fileName = Date.now() + "." + ext;
+      const filePath = path.join("uploads", fileName);
+
+      // Ensure uploads folder exists
+      if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
+
+      fs.writeFileSync(filePath, base64Data, "base64");
+      user.image = "/" + filePath; // store relative path for frontend
+    }
+
+    await user.save();
+    res.json({ message: "Profile updated successfully", user });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    res.status(500).json({ message: "Error updating profile", error: err });
+  }
+};
