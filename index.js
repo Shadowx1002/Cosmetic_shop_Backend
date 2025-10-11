@@ -41,6 +41,7 @@ mongoose
   })
   .catch((e) => {
     console.log("Failed to connect to MongoDB");
+    console.log(e)
     
   });
 app.use("/api/products", productRouter);
